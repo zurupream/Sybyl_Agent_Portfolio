@@ -75,7 +75,9 @@ def test_unauthenticated_redirects_to_login():
     terms_res = client.get("/terms")
     assert terms_res.status_code == 200
     assert "No Account Creation &amp; Business Email-Only Capture" in terms_res.text
-    assert "Corporate Google Gemini Engine" in terms_res.text
+    assert "Corporate Google Gemini Enterprise Safeguards" in terms_res.text
+    assert "never used to train" in terms_res.text
+    assert "AI Can Make Mistakes" in terms_res.text
     assert "Use at Your Own Risk" in terms_res.text
 
 

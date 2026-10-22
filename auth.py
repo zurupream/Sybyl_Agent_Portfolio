@@ -1021,8 +1021,8 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
             <ul class="terms-bullets">
               <li><strong>No Account &amp; Email-Only Capture:</strong> You do not create an account with Sybyl. Sybyl only captures your business email address and maintains no other account or profile records.</li>
               <li><strong>Zero Data Storage by Sybyl:</strong> Any documents or data you upload into the applications are uploaded on your own initiative. Sybyl does <strong>not</strong> store, retain, or archive your uploaded data.</li>
-              <li><strong>Corporate Google Gemini Engine:</strong> Inputs are processed by Sybyl's corporate Google Gemini engine. While Google Gemini applies enterprise data safeguards, Sybyl does not control or know where Google Gemini processes or stores information.</li>
-              <li><strong>Use at Your Own Sole Risk:</strong> All applications are provided <em>"AS IS"</em> for evaluation. You access these tools and upload any information strictly at your own risk.</li>
+              <li><strong>Corporate Google Gemini Privacy Safeguards:</strong> Inputs are processed by Sybyl's corporate <strong>Google Gemini Enterprise</strong> engine under enterprise privacy commitments — <strong>your data and prompts are never used to train AI models</strong>.</li>
+              <li><strong>AI Safeguard &amp; Use at Your Own Risk:</strong> AI can make mistakes — always verify important information before acting. All applications are provided <em>"AS IS"</em> for evaluation and used strictly at your own risk.</li>
             </ul>
             <div style="margin-left:26px;margin-top:4px;">
               <button type="button" id="open-terms-modal-btn" class="terms-modal-link">Read Full Legal Terms &amp; Liability Disclaimer</button>
@@ -1104,14 +1104,14 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
         <h4>2. User-Initiated Uploads &amp; Zero Data Storage by Sybyl</h4>
         <p>All files, documents, statements, contracts, images, audio recordings, or text prompts that you upload or enter into any of the 61 applications are submitted strictly on your own volition and responsibility. <strong>Sybyl does not store, archive, or maintain permanent records of any documents or business data you upload into the applications.</strong></p>
 
-        <h4>3. Corporate Google Gemini Engine &amp; Third-Party Cloud Processing</h4>
-        <p>The agents in this portfolio utilize Sybyl's corporate <strong>Google Gemini</strong> engine to read documents and process inputs. While our corporate Google Gemini environment applies Google's enterprise data safeguards, <strong>Sybyl does not store your uploaded data and does not control, inspect, or know the specific geographic locations or internal Google infrastructure where Google Gemini processes or stores information.</strong></p>
+        <h4>3. Corporate Google Gemini Enterprise Safeguards &amp; Zero Model Training</h4>
+        <p>The agents in this portfolio process inputs through Sybyl's corporate <strong>Google Gemini Enterprise</strong> engine governed by Google Cloud's enterprise data privacy commitments. <strong>Your uploaded documents, prompts, and generated outputs are protected by enterprise safeguards and are never used to train Google's foundation models or shared with third parties.</strong> Sybyl itself does not store, inspect, or retain copies of your uploaded data.</p>
 
-        <h4>4. Assumption of Risk ("Use at Your Own Risk")</h4>
-        <p><strong>You access and use these applications, and upload any data or documents, strictly at your own sole risk.</strong> You are solely responsible for ensuring that you have the legal right, authority, and necessary consents before uploading any file or information, and you should not upload confidential, regulated, or sensitive production data unless you assume full responsibility for doing so.</p>
+        <h4>4. Generative AI Safeguard ("AI Can Make Mistakes") &amp; Human Verification</h4>
+        <p><strong>Generative AI can make mistakes, misinterpret documents, or produce incomplete outputs.</strong> While deterministic Python performs calculations and rule validations within these agents, all outputs are provided strictly as decision-support drafts. You must independently review and verify all figures, citations, and recommendations with a qualified human professional before any action, filing, communication, or payment is taken.</p>
 
-        <h4>5. "AS IS" Provision &amp; Disclaimer of Warranties</h4>
-        <p>All applications and AI-generated outputs are provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis for evaluation and demonstration purposes only, without warranties of any kind (express or implied), including accuracy, completeness, fitness for a particular purpose, or regulatory compliance. Outputs do not constitute formal financial, legal, underwriting, tax, or professional advice.</p>
+        <h4>5. Assumption of Risk ("Use at Your Own Risk") &amp; "AS IS" Provision</h4>
+        <p><strong>You access and use these applications, and upload any data or documents, strictly at your own sole risk.</strong> All applications and AI-generated outputs are provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis for evaluation and demonstration purposes only, without warranties of any kind (express or implied), including accuracy, completeness, fitness for a particular purpose, or regulatory compliance. Outputs do not constitute formal financial, legal, underwriting, tax, or professional advice.</p>
 
         <h4>6. Complete Limitation of Liability &amp; Indemnification</h4>
         <p>To the fullest extent permitted by law, Sybyl, its affiliates, directors, officers, and employees disclaim all liability and shall not be responsible for any direct, indirect, incidental, consequential, or special damages, loss of data, regulatory claims, or business decisions arising from your access to the portal or any data uploaded by you. You agree to indemnify and hold Sybyl harmless from any claim arising out of your use of the applications or any content you submit.</p>

@@ -463,19 +463,19 @@ async def terms_and_conditions_page() -> HTMLResponse:
       Any documents, files, statements, contracts, invoices, images, audio recordings, or text prompts that you upload or enter into any of the 61 applications are uploaded strictly on your own initiative and responsibility. <strong>Sybyl does not capture, store, archive, or maintain permanent records of any documents or business data you upload into these applications.</strong>
     </p>
 
-    <h2>3. Corporate Google Gemini Engine &amp; Third-Party Processing Safeguards</h2>
+    <h2>3. Corporate Google Gemini Enterprise Safeguards &amp; Zero Model Training</h2>
     <p>
-      The applications in this portfolio use Sybyl's corporate <strong>Google Gemini</strong> engine to process uploaded documents and inputs. While our corporate Google Gemini engine applies Google's enterprise data safeguards, <strong>Sybyl itself does not store your uploaded data and does not control, inspect, or know where Google Gemini processes or stores the information.</strong>
+      The applications in this portfolio process uploaded documents and inputs through Sybyl's corporate <strong>Google Gemini Enterprise</strong> engine governed by Google Cloud's enterprise data privacy commitments. <strong>Your uploaded documents, prompts, and generated outputs are protected by enterprise-grade safeguards and are never used to train Google's foundation models or shared with third parties.</strong> Sybyl itself does not store, inspect, or retain copies of your uploaded data.
     </p>
 
-    <h2>4. Assumption of Risk ("Use at Your Own Risk")</h2>
+    <h2>4. Generative AI Safeguard ("AI Can Make Mistakes") &amp; Human Verification</h2>
     <p>
-      <strong>Users access and use these applications, and upload any files or data, strictly at their own sole risk.</strong> You are solely responsible for ensuring that you have the legal right, corporate authorization, and necessary consents before uploading any information, and you should not upload sensitive, confidential, or regulated production data unless you and your organisation assume full responsibility for doing so.
+      <strong>Generative AI can make mistakes, misinterpret documents, or produce incomplete outputs.</strong> While deterministic Python performs calculations and rule validations within these agents, all outputs are provided strictly as decision-support drafts. Users must independently review and verify all figures, citations, and recommendations with a qualified human professional before any action, filing, communication, or payment is taken.
     </p>
 
-    <h2>5. "AS IS" Provision &amp; Disclaimer of Warranties</h2>
+    <h2>5. Assumption of Risk ("Use at Your Own Risk") &amp; "AS IS" Provision</h2>
     <p>
-      All 61 applications and their outputs are provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis for demonstration and evaluation purposes only, without warranties of any kind (express or implied), including accuracy, completeness, merchantability, fitness for a particular purpose, or regulatory compliance.
+      <strong>Users access and use these applications, and upload any files or data, strictly at their own sole risk.</strong> All 61 applications and their outputs are provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis for demonstration and evaluation purposes only, without warranties of any kind (express or implied), including accuracy, completeness, merchantability, fitness for a particular purpose, or regulatory compliance.
     </p>
 
     <h2>6. Limitation of Liability &amp; Indemnification</h2>
