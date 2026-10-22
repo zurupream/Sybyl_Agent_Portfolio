@@ -336,6 +336,20 @@ async def auth_logout(request: Request) -> Response:
     return resp
 
 
+@app.get("/Sybyl-Logo.svg")
+@app.get("/static/Sybyl-Logo.svg")
+async def serve_sybyl_logo() -> Response:
+    """Serve the official Sybyl vector logo across all portal pages."""
+    logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Sybyl-Logo.svg")
+    with open(logo_path, "r", encoding="utf-8") as f:
+        svg_content = f.read()
+    return Response(
+        content=svg_content,
+        media_type="image/svg+xml; charset=utf-8",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
 @app.get("/terms", response_class=HTMLResponse)
 async def terms_and_conditions_page() -> HTMLResponse:
     """Standalone Legal Terms & Conditions, Data Processing & Risk Disclaimer page."""
@@ -430,6 +444,9 @@ async def terms_and_conditions_page() -> HTMLResponse:
 </head>
 <body>
   <main class="card">
+    <div style="margin-bottom: 16px;">
+      <img src="/Sybyl-Logo.svg" alt="Sybyl" style="height: 36px; width: auto; display: block;" />
+    </div>
     <div class="eyebrow">Sybyl Enterprise AI Portfolio · Legal Notice (Version 2026.1)</div>
     <h1>Terms &amp; Conditions, Data Processing &amp; Risk Disclaimer</h1>
     <p class="lead">
@@ -687,18 +704,10 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     align-items: center;
     gap: 12px;
   }}
-  .brand-icon {{
-    width: 38px;
-    height: 38px;
-    border-radius: 11px;
-    background: linear-gradient(135deg, #0071E3 0%, #47A1FF 100%);
-    color: #FFFFFF;
-    font-weight: 800;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 113, 227, 0.28);
+  .brand-logo-svg {{
+    height: 36px;
+    width: auto;
+    display: block;
   }}
   .brand-title {{
     font-size: 16.5px;
@@ -1190,7 +1199,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
 <body>
   <header class="topbar">
     <div class="brand-cluster">
-      <div class="brand-icon">S</div>
+      <img src="/Sybyl-Logo.svg" alt="Sybyl" class="brand-logo-svg" />
       <div>
         <div class="brand-title">Sybyl Agentic AI Portfolio</div>
         <div class="brand-subtitle">61 Live Agents Across 8 Industry Sectors · Single Sign-On Active</div>
@@ -1757,9 +1766,12 @@ async def admin_dashboard_page(request: Request) -> Response:
 </head>
 <body>
   <header class="topbar">
-    <div>
-      <h1 style="font-size:19px;font-weight:800;">Marketing Leads &amp; Portfolio Telemetry</h1>
-      <div style="font-size:12.5px;color:#515154;">Captured Passwordless Work Email Leads &amp; Sybyl Staff SSO Activity</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <img src="/Sybyl-Logo.svg" alt="Sybyl" style="height:34px;width:auto;display:block;" />
+      <div>
+        <h1 style="font-size:19px;font-weight:800;">Marketing Leads &amp; Portfolio Telemetry</h1>
+        <div style="font-size:12.5px;color:#515154;">Captured Passwordless Work Email Leads &amp; Sybyl Staff SSO Activity</div>
+      </div>
     </div>
     <div style="display:flex;gap:10px;">
       <a href="/api/admin/leads.csv" class="btn btn-primary">⬇ Download Leads CSV</a>
@@ -1852,6 +1864,8 @@ async def admin_dashboard_page(request: Request) -> Response:
 PORTAL_OWN_PREFIXES = (
     "/login",
     "/terms",
+    "/Sybyl-Logo.svg",
+    "/static/",
     "/auth/",
     "/_health",
     "/api/health",

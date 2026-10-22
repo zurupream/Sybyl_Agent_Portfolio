@@ -61,8 +61,15 @@ def test_unauthenticated_redirects_to_login():
     assert 'id="lead-email"' in login_res.text
     assert 'id="terms-checkbox"' in login_res.text
     assert "Use-at-Your-Own-Risk Disclaimer" in login_res.text
+    assert "/Sybyl-Logo.svg" in login_res.text
     assert 'id="lead-name"' not in login_res.text
     assert 'id="lead-role"' not in login_res.text
+
+    logo_res = client.get("/Sybyl-Logo.svg")
+    assert logo_res.status_code == 200
+    assert "image/svg+xml" in logo_res.headers.get("content-type", "")
+    assert "<svg" in logo_res.text
+    assert "#ea0029" in logo_res.text
     assert ("ka" + "ren") not in login_res.text.lower()
 
     terms_res = client.get("/terms")

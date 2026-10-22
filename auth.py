@@ -405,20 +405,32 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
   .brand-logo-wrap {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
   }
   .brand-mark {
-    width: 40px;
-    height: 40px;
+    background: #FFFFFF;
+    padding: 7px 14px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #0071E3 0%, #47A1FF 100%);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
-    font-size: 19px;
-    color: #FFFFFF;
-    box-shadow: 0 8px 20px rgba(0, 113, 227, 0.38);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  }
+  .brand-mark img {
+    height: 28px;
+    width: auto;
+    display: block;
+  }
+  .auth-card-logo {
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .auth-card-logo img {
+    height: 34px;
+    width: auto;
+    display: block;
   }
   .brand-name {
     font-size: 17px;
@@ -905,7 +917,9 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     <section class="hero-pane">
       <div class="brand-header">
         <div class="brand-logo-wrap">
-          <div class="brand-mark">S</div>
+          <div class="brand-mark">
+            <img src="/Sybyl-Logo.svg" alt="Sybyl" />
+          </div>
           <div>
             <div class="brand-name">Sybyl Enterprise AI</div>
             <div class="brand-sub">Gemini Enterprise · Google ADK · Cloud Run</div>
@@ -975,7 +989,10 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     <!-- Right Authentication & Lead Capture Pane -->
     <section class="auth-pane">
       <div class="auth-card">
-        <div class="auth-badge">Free Enterprise Access · Single Sign-On</div>
+        <div class="auth-card-logo">
+          <img src="/Sybyl-Logo.svg" alt="Sybyl" />
+          <div class="auth-badge" style="margin-bottom:0;">Free Enterprise Access · Single Sign-On</div>
+        </div>
         <h2 class="auth-title">Access the AI Agent Portfolio</h2>
         <p class="auth-subtitle">
           Sign in with your business email to unlock free interactive access to all 61 live agents across 8 sectors.
