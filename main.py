@@ -697,12 +697,13 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }}
   .brand-cluster {{
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-shrink: 0;
   }}
   .brand-logo-svg {{
     height: 36px;
@@ -723,8 +724,11 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
   .user-cluster {{
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    min-width: 0;
+    margin-left: auto;
   }}
   .user-badge {{
     display: inline-flex;
@@ -737,16 +741,25 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     font-size: 12.5px;
     font-weight: 600;
     color: var(--ink);
+    min-width: 0;
+    max-width: 460px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }}
   .user-dot {{
     width: 8px;
     height: 8px;
     border-radius: 50%;
     background: #30D158;
+    flex-shrink: 0;
   }}
   .user-meta {{
     color: var(--muted);
     font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }}
   .nav-pill-btn {{
     display: inline-flex;
@@ -761,6 +774,8 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     color: var(--ink);
     background: #FFFFFF;
     transition: all 0.15s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
   }}
   .nav-pill-btn:hover {{
     border-color: var(--accent);
@@ -772,106 +787,12 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     color: var(--accent);
   }}
 
-  /* Hero & Design Principles Section */
+  /* Main Container & Search/Sector Filter Controls */
   .container {{
     max-width: 1380px;
     margin: 0 auto;
     padding: 0 28px;
   }}
-  .hero-banner {{
-    margin-top: 28px;
-    background: linear-gradient(145deg, #0B101E 0%, #152244 100%);
-    border-radius: 24px;
-    padding: 38px 42px;
-    color: #FFFFFF;
-    box-shadow: 0 18px 45px rgba(11, 16, 30, 0.12);
-  }}
-  .hero-top {{
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
-    flex-wrap: wrap;
-    margin-bottom: 28px;
-  }}
-  .hero-eyebrow {{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 13px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #7CC0FF;
-    margin-bottom: 14px;
-  }}
-  .hero-h1 {{
-    font-size: clamp(26px, 2.8vw, 36px);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin-bottom: 10px;
-  }}
-  .hero-lead {{
-    font-size: 15px;
-    line-height: 1.58;
-    color: rgba(255, 255, 255, 0.8);
-    max-width: 820px;
-  }}
-  .hero-stats {{
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-  }}
-  .stat-card {{
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 16px;
-    padding: 14px 20px;
-    min-width: 120px;
-    text-align: center;
-  }}
-  .stat-num {{
-    font-size: 26px;
-    font-weight: 800;
-    color: #7CC0FF;
-    line-height: 1.1;
-  }}
-  .stat-lbl {{
-    font-size: 11.5px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.7);
-    margin-top: 4px;
-  }}
-  .principles-grid {{
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    padding-top: 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-  }}
-  .principle-card {{
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 14px;
-    padding: 16px 18px;
-  }}
-  .principle-title {{
-    font-size: 13.5px;
-    font-weight: 700;
-    color: #7CC0FF;
-    margin-bottom: 5px;
-  }}
-  .principle-desc {{
-    font-size: 13px;
-    line-height: 1.48;
-    color: rgba(255, 255, 255, 0.82);
-  }}
-
-  /* Search & Sector Filter Controls */
   .controls-bar {{
     margin-top: 24px;
     background: var(--surface);
@@ -1189,10 +1110,10 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
   .hidden {{ display: none !important; }}
 
   @media (max-width: 900px) {{
-    .principles-grid {{ grid-template-columns: 1fr; }}
     .agents-grid {{ grid-template-columns: 1fr; }}
-    .topbar {{ padding: 12px 18px; }}
-    .hero-banner {{ padding: 28px 22px; }}
+    .topbar {{ padding: 12px 18px; flex-wrap: wrap; }}
+    .user-cluster {{ width: 100%; justify-content: flex-start; flex-wrap: wrap; margin-left: 0; }}
+    .user-badge {{ max-width: 100%; }}
   }}
 </style>
 </head>
@@ -1218,47 +1139,6 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
   </header>
 
   <main class="container">
-    <section class="hero-banner">
-      <div class="hero-top">
-        <div>
-          <div class="hero-eyebrow">Gemini Enterprise · Google Agent Development Kit · Cloud Run</div>
-          <h1 class="hero-h1">Enterprise Agentic AI Portfolio</h1>
-          <p class="hero-lead">
-            Complete list of deployed agents (61 listings across 8 sectors). Built on Gemini Enterprise concepts (Gemini models, Google Agent Development Kit, Cloud Run on Google Cloud). The design is flexible and ports to other models and agent frameworks, including locally hosted models.
-          </p>
-        </div>
-        <div class="hero-stats">
-          <div class="stat-card">
-            <div class="stat-num">61</div>
-            <div class="stat-lbl">Live AI Agents</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num">8</div>
-            <div class="stat-lbl">Industry Sectors</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num">1-Click</div>
-            <div class="stat-lbl">SSO Launch</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="principles-grid">
-        <div class="principle-card">
-          <div class="principle-title">1. Reasoning + Deterministic Python</div>
-          <div class="principle-desc">The model does reasoning and document reading; deterministic Python does calculations, rules and validation.</div>
-        </div>
-        <div class="principle-card">
-          <div class="principle-title">2. Human-in-the-Loop Approval</div>
-          <div class="principle-desc">A human approves before anything is posted, sent or paid.</div>
-        </div>
-        <div class="principle-card">
-          <div class="principle-title">3. Enterprise Single Sign-On</div>
-          <div class="principle-desc">Enterprise sign-in on every agent — your active session launches any agent below with zero second login.</div>
-        </div>
-      </div>
-    </section>
-
     <section class="controls-bar" aria-label="Filter and search agents">
       <div class="search-row">
         <div class="search-input-wrap">
