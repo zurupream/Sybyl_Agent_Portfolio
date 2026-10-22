@@ -1111,9 +1111,13 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
 
   @media (max-width: 900px) {{
     .agents-grid {{ grid-template-columns: 1fr; }}
-    .topbar {{ padding: 12px 18px; flex-wrap: wrap; }}
+    .topbar {{ padding: 12px 16px; flex-wrap: wrap; }}
+    .brand-cluster {{ flex-shrink: 1; min-width: 0; max-width: 100%; }}
+    .brand-cluster > div {{ min-width: 0; }}
     .user-cluster {{ width: 100%; justify-content: flex-start; flex-wrap: wrap; margin-left: 0; }}
     .user-badge {{ max-width: 100%; }}
+    .container {{ padding: 0 16px; }}
+    .search-input-wrap {{ min-width: 0; width: 100%; }}
   }}
 </style>
 </head>
