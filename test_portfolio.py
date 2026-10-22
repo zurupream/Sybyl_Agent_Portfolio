@@ -58,6 +58,9 @@ def test_unauthenticated_redirects_to_login():
     assert "Passwordless Work Email" in login_res.text
     assert "Sybyl Staff" in login_res.text
     assert "61" in login_res.text
+    assert 'id="lead-email"' in login_res.text
+    assert 'id="lead-name"' not in login_res.text
+    assert 'id="lead-role"' not in login_res.text
     assert ("ka" + "ren") not in login_res.text.lower()
 
 
@@ -91,14 +94,11 @@ def test_full_passwordless_lead_capture_and_portfolio_access():
 
     client = TestClient(app)
 
-    # 1. Request OTP with business work email + lead capture details
+    # 1. Request OTP with ONLY business work email
     send_res = client.post(
         "/auth/email/send-otp",
         json={
             "email": "jane.muthoni@equitybank.co.ke",
-            "name": "Jane Muthoni",
-            "company": "Equity Bank Kenya",
-            "role": "Director of Credit Underwriting",
         },
     )
     assert send_res.status_code == 200
@@ -111,15 +111,12 @@ def test_full_passwordless_lead_capture_and_portfolio_access():
     code = outbox[0]["code"]
     assert re.fullmatch(r"\d{6}", code)
 
-    # 2. Verify OTP
+    # 2. Verify OTP with ONLY email + 6-digit code
     verify_res = client.post(
         "/auth/email/verify-otp",
         json={
             "email": "jane.muthoni@equitybank.co.ke",
             "code": code,
-            "name": "Jane Muthoni",
-            "company": "Equity Bank Kenya",
-            "role": "Director of Credit Underwriting",
         },
     )
     assert verify_res.status_code == 200
@@ -127,15 +124,13 @@ def test_full_passwordless_lead_capture_and_portfolio_access():
     assert vdata["ok"] is True
     assert vdata["user"]["email"] == "jane.muthoni@equitybank.co.ke"
     assert vdata["user"]["name"] == "Jane Muthoni"
-    assert vdata["user"]["company"] == "Equity Bank Kenya"
-    assert vdata["user"]["role"] == "Director of Credit Underwriting"
+    assert vdata["user"]["company"] == "Equitybank"
 
     # 3. Access Portfolio Directory (/)
     home_res = client.get("/")
     assert home_res.status_code == 200
     html = home_res.text
     assert "Jane Muthoni" in html
-    assert "Equity Bank Kenya" in html
     assert "Bank Statement Analyzer" in html
     assert "Enterprise Contracts Analyzer" in html
     assert "Learning, Certification Expiry &amp; Skills Matrix Agent" in html
@@ -214,13 +209,12 @@ def test_admin_lead_telemetry_and_csv_export():
     assert admin_res.status_code == 200
     assert "Marketing Leads &amp; Portfolio Telemetry" in admin_res.text
     assert "jane.muthoni@equitybank.co.ke" in admin_res.text
-    assert "Equity Bank Kenya" in admin_res.text
+    assert "equitybank.co.ke" in admin_res.text
 
     # Check CSV export
     csv_res = client.get("/api/admin/leads.csv")
     assert csv_res.status_code == 200
     assert "text/csv" in csv_res.headers["content-type"]
     assert "jane.muthoni@equitybank.co.ke" in csv_res.text
-    assert "Equity Bank Kenya" in csv_res.text
-    assert "Director of Credit Underwriting" in csv_res.text
+    assert "equitybank.co.ke" in csv_res.text
     assert "Bank Statement Analyzer" in csv_res.text

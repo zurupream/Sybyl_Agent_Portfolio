@@ -865,37 +865,14 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
 
         <div id="status-banner" class="status-banner" role="alert"></div>
 
-        <!-- Step 1: Passwordless Lead Capture & OTP Request Form -->
+        <!-- Step 1: Passwordless Work Email OTP Request Form -->
         <form id="otp-request-form" class="form-grid" novalidate>
-          <div class="field-group">
-            <label class="field-label" for="lead-name">
-              <span>Full Name</span>
-              <span class="field-hint">Required</span>
-            </label>
-            <input id="lead-name" name="name" type="text" class="text-input" placeholder="e.g. Jane Muthoni" required autocomplete="name" />
-          </div>
-
-          <div class="form-row-2">
-            <div class="field-group">
-              <label class="field-label" for="lead-company">
-                <span>Company</span>
-              </label>
-              <input id="lead-company" name="company" type="text" class="text-input" placeholder="e.g. Equity Bank" required autocomplete="organization" />
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="lead-role">
-                <span>Job Title / Role</span>
-              </label>
-              <input id="lead-role" name="role" type="text" class="text-input" placeholder="e.g. Head of Credit" autocomplete="organization-title" />
-            </div>
-          </div>
-
           <div class="field-group">
             <label class="field-label" for="lead-email">
               <span>Work Email</span>
               <span class="field-hint">Business domains only</span>
             </label>
-            <input id="lead-email" name="email" type="email" class="text-input" placeholder="name@company.com" required autocomplete="email" />
+            <input id="lead-email" name="email" type="email" class="text-input" placeholder="name@company.com" required autocomplete="email" autofocus />
           </div>
 
           <button id="send-code-btn" type="submit" class="primary-btn">
@@ -920,7 +897,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
           </button>
 
           <div class="secondary-actions">
-            <button id="change-email-btn" type="button" class="link-btn">← Change email or details</button>
+            <button id="change-email-btn" type="button" class="link-btn">← Change email address</button>
             <button id="resend-code-btn" type="button" class="link-btn" disabled>Resend code (30s)</button>
           </div>
         </form>
@@ -958,9 +935,6 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
 <script>
   const NEXT_URL = __NEXT_URL_JSON__;
   let activeEmail = "";
-  let activeName = "";
-  let activeCompany = "";
-  let activeRole = "";
   let resendTimer = null;
 
   const statusBanner = document.getElementById("status-banner");
@@ -1004,19 +978,8 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     e.preventDefault();
     clearStatus();
 
-    const nameVal = document.getElementById("lead-name").value.trim();
-    const companyVal = document.getElementById("lead-company").value.trim();
-    const roleVal = document.getElementById("lead-role").value.trim();
     const emailVal = document.getElementById("lead-email").value.trim();
 
-    if (!nameVal) {
-      showStatus("Please enter your full name.", "error");
-      return;
-    }
-    if (!companyVal) {
-      showStatus("Please enter your company or organisation name.", "error");
-      return;
-    }
     if (!emailVal) {
       showStatus("Please enter your work email address.", "error");
       return;
@@ -1030,10 +993,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: emailVal,
-          name: nameVal,
-          company: companyVal,
-          role: roleVal
+          email: emailVal
         })
       });
       const data = await resp.json();
@@ -1043,9 +1003,6 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
       }
 
       activeEmail = emailVal;
-      activeName = nameVal;
-      activeCompany = companyVal;
-      activeRole = roleVal;
       otpTargetEmail.textContent = emailVal;
 
       requestForm.classList.add("hidden");
@@ -1080,10 +1037,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: activeEmail,
-          code: codeVal,
-          name: activeName,
-          company: activeCompany,
-          role: activeRole
+          code: codeVal
         })
       });
       const data = await resp.json();
@@ -1118,10 +1072,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: activeEmail,
-          name: activeName,
-          company: activeCompany,
-          role: activeRole
+          email: activeEmail
         })
       });
       const data = await resp.json();
