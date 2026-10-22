@@ -155,10 +155,23 @@ async def auth_send_otp(request: Request) -> JSONResponse:
     name = str(body.get("name") or "").strip()
     company = str(body.get("company") or "").strip()
     role = str(body.get("role") or "").strip()
+    terms_accepted = bool(body.get("terms_accepted", False))
 
     allowed, reason = check_work_email_allowed(email)
     if not allowed:
         return JSONResponse({"error": reason}, status_code=403)
+
+    is_sybyl_staff = email.endswith("@sybyl.com")
+    if not is_sybyl_staff and not terms_accepted:
+        return JSONResponse(
+            {
+                "error": (
+                    "External visitors must accept the Terms & Conditions and "
+                    "Use-at-Your-Own-Risk Data Processing Disclaimer before signing in."
+                )
+            },
+            status_code=400,
+        )
 
     client_ip = _client_ip(request)
     try:
@@ -240,6 +253,8 @@ async def auth_verify_otp(request: Request) -> JSONResponse:
         role=final_role,
         provider="email_otp",
         client_ip=_client_ip(request),
+        terms_accepted=True,
+        terms_version="2026.1",
     )
 
     now = int(time.time())
@@ -319,6 +334,146 @@ async def auth_logout(request: Request) -> Response:
     resp = RedirectResponse("/login", status_code=302)
     resp.delete_cookie("sybyl_active_agent", path="/")
     return resp
+
+
+@app.get("/terms", response_class=HTMLResponse)
+async def terms_and_conditions_page() -> HTMLResponse:
+    """Standalone Legal Terms & Conditions, Data Processing & Risk Disclaimer page."""
+    html_doc = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Terms &amp; Conditions, Data Processing &amp; Risk Disclaimer — Sybyl Enterprise AI</title>
+<style>
+  :root {
+    --bg: #F5F5F7;
+    --surface: #FFFFFF;
+    --ink: #1D1D1F;
+    --ink-secondary: #515154;
+    --muted: #86868B;
+    --line: #E5E5EA;
+    --accent: #0071E3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+    line-height: 1.6;
+    padding: 40px 20px;
+  }
+  .card {
+    max-width: 820px;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 36px 40px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.05);
+  }
+  .eyebrow {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .lead {
+    font-size: 14px;
+    color: var(--ink-secondary);
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 22px;
+  }
+  h2 {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 18px 0 6px;
+  }
+  p {
+    font-size: 14px;
+    color: var(--ink-secondary);
+    margin-bottom: 12px;
+  }
+  .footer-bar {
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="eyebrow">Sybyl Enterprise AI Portfolio · Legal Notice (Version 2026.1)</div>
+    <h1>Terms &amp; Conditions, Data Processing &amp; Risk Disclaimer</h1>
+    <p class="lead">
+      <strong>Mandatory for External (Non-Sybyl) Visitors:</strong> By verifying your business email address and accessing the Sybyl Agentic AI Portfolio, you agree to the following Terms &amp; Conditions on behalf of yourself and your organisation.
+    </p>
+
+    <h2>1. No Account Creation &amp; Business Email-Only Capture</h2>
+    <p>
+      You do not need to create an account with Sybyl to access this portfolio, and signing in does not create a customer account, user profile, or service agreement with Sybyl. The only information Sybyl captures and records is your <strong>business email address</strong> (for one-time passcode verification and business communications). Sybyl does not maintain any other records of your account.
+    </p>
+
+    <h2>2. User-Initiated Uploads &amp; Zero Data Storage by Sybyl</h2>
+    <p>
+      Any documents, files, statements, contracts, invoices, images, audio recordings, or text prompts that you upload or enter into any of the 61 applications are uploaded strictly on your own initiative and responsibility. <strong>Sybyl does not capture, store, archive, or maintain permanent records of any documents or business data you upload into these applications.</strong>
+    </p>
+
+    <h2>3. Corporate Google Gemini Engine &amp; Third-Party Processing Safeguards</h2>
+    <p>
+      The applications in this portfolio use Sybyl's corporate <strong>Google Gemini</strong> engine to process uploaded documents and inputs. While our corporate Google Gemini engine applies Google's enterprise data safeguards, <strong>Sybyl itself does not store your uploaded data and does not control, inspect, or know where Google Gemini processes or stores the information.</strong>
+    </p>
+
+    <h2>4. Assumption of Risk ("Use at Your Own Risk")</h2>
+    <p>
+      <strong>Users access and use these applications, and upload any files or data, strictly at their own sole risk.</strong> You are solely responsible for ensuring that you have the legal right, corporate authorization, and necessary consents before uploading any information, and you should not upload sensitive, confidential, or regulated production data unless you and your organisation assume full responsibility for doing so.
+    </p>
+
+    <h2>5. "AS IS" Provision &amp; Disclaimer of Warranties</h2>
+    <p>
+      All 61 applications and their outputs are provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis for demonstration and evaluation purposes only, without warranties of any kind (express or implied), including accuracy, completeness, merchantability, fitness for a particular purpose, or regulatory compliance.
+    </p>
+
+    <h2>6. Limitation of Liability &amp; Indemnification</h2>
+    <p>
+      To the fullest extent permitted by applicable law, Sybyl, its affiliates, directors, officers, and employees disclaim all liability for any direct, indirect, incidental, consequential, or special damages, loss of data, regulatory claims, or business decisions arising from your use of the applications or any data you upload. You agree to indemnify and hold Sybyl harmless from any claims arising out of data or documents you submit to the applications.
+    </p>
+
+    <div class="footer-bar">
+      <span>© 2026 Sybyl Enterprise AI · All rights reserved.</span>
+      <a href="/login" class="btn">← Back to Sign-In</a>
+    </div>
+  </main>
+</body>
+</html>"""
+    return HTMLResponse(html_doc)
 
 
 # =============================================================================
@@ -1458,13 +1613,18 @@ async def admin_dashboard_page(request: Request) -> Response:
             if agents_list
             else '<span style="color:#86868B;">Browsing directory</span>'
         )
+        terms_pill = (
+            '<span class="pill pill-staff">Sybyl Staff Policy</span>'
+            if l.get("is_staff")
+            else '<span class="pill pill-lead">✓ Accepted (v2026.1)</span>'
+        )
         lead_rows_html.append(
             f"""<tr>
               <td><strong>{html.escape(str(l.get('name') or ''))}</strong></td>
               <td>{html.escape(str(l.get('company') or ''))}</td>
-              <td>{html.escape(str(l.get('role') or ''))}</td>
               <td><a href="mailto:{html.escape(str(l.get('email') or ''))}" style="color:#0071E3;text-decoration:none;">{html.escape(str(l.get('email') or ''))}</a></td>
               <td>{provider_pill}</td>
+              <td>{terms_pill}</td>
               <td>{int(l.get('login_count') or 0)}</td>
               <td><strong>{int(l.get('launch_count') or 0)}</strong></td>
               <td style="max-width:280px;font-size:12px;">{agents_str}</td>
@@ -1643,11 +1803,11 @@ async def admin_dashboard_page(request: Request) -> Response:
       <table>
         <thead>
           <tr>
-            <th>Full Name</th>
-            <th>Company</th>
-            <th>Job Title / Role</th>
+            <th>Inferred Name</th>
+            <th>Company / Domain</th>
             <th>Work Email</th>
             <th>Auth Method</th>
+            <th>Legal Terms</th>
             <th>Sign-Ins</th>
             <th>Launches</th>
             <th>Agents Explored</th>
@@ -1691,6 +1851,7 @@ async def admin_dashboard_page(request: Request) -> Response:
 # our own portal endpoints), forward it to the active agent's Cloud Run service.
 PORTAL_OWN_PREFIXES = (
     "/login",
+    "/terms",
     "/auth/",
     "/_health",
     "/api/health",

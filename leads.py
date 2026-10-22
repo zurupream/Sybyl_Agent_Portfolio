@@ -116,6 +116,8 @@ def record_lead_login(
     provider: str = "email_otp",
     picture: str = "",
     client_ip: str = "",
+    terms_accepted: bool = True,
+    terms_version: str = "2026.1",
 ) -> dict[str, Any]:
     """Create or update a lead record upon successful authentication."""
     _load_local_cache()
@@ -159,6 +161,7 @@ def record_lead_login(
     login_count = int(existing.get("login_count") or 0) + 1
     launch_count = int(existing.get("launch_count") or 0)
     agents_launched = list(existing.get("agents_launched") or [])
+    terms_accepted_at = str(existing.get("terms_accepted_at") or now_iso)
 
     record: dict[str, Any] = {
         "email": email_clean,
@@ -177,6 +180,9 @@ def record_lead_login(
         "last_agent_launched": str(existing.get("last_agent_launched") or ""),
         "last_launch_at": str(existing.get("last_launch_at") or ""),
         "client_ip": client_ip or str(existing.get("client_ip") or ""),
+        "terms_accepted": bool(terms_accepted or is_staff or existing.get("terms_accepted")),
+        "terms_version": terms_version,
+        "terms_accepted_at": terms_accepted_at,
     }
 
     _MEM_LEADS[email_clean] = record
@@ -363,6 +369,8 @@ def export_leads_csv() -> str:
             "Business Domain",
             "Lead Type",
             "Sign-In Method",
+            "Terms Accepted",
+            "Terms Accepted At (UTC)",
             "Login Count",
             "Agent Launches",
             "Agents Explored",
@@ -381,6 +389,8 @@ def export_leads_csv() -> str:
                 l.get("domain", ""),
                 "Sybyl Staff" if l.get("is_staff") else "External Prospect / Lead",
                 "Google Workspace SSO" if l.get("provider") == "google" else "Passwordless Work Email OTP",
+                "Sybyl Staff Policy" if l.get("is_staff") else ("Accepted (v2026.1)" if l.get("terms_accepted", True) else "No"),
+                l.get("terms_accepted_at") or l.get("first_seen", ""),
                 l.get("login_count", 0),
                 l.get("launch_count", 0),
                 " | ".join(l.get("agents_launched") or []),

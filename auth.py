@@ -772,6 +772,124 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     color: var(--muted);
     text-align: center;
   }
+  .terms-box {
+    background: #F5F5F7;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.48;
+    color: var(--ink-secondary);
+  }
+  .terms-check-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .terms-check-label input[type="checkbox"] {
+    margin-top: 2px;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .terms-bullets {
+    margin: 8px 0 6px 26px;
+    padding: 0;
+    list-style: disc;
+    font-size: 11.5px;
+    color: var(--ink-secondary);
+  }
+  .terms-bullets li {
+    margin-bottom: 3px;
+  }
+  .terms-modal-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 16, 30, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-dialog {
+    background: #FFFFFF;
+    border-radius: 18px;
+    max-width: 680px;
+    width: 100%;
+    max-height: 86vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .modal-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .modal-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .modal-close {
+    background: #F5F5F7;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .modal-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    font-size: 13px;
+    line-height: 1.58;
+    color: var(--ink-secondary);
+  }
+  .modal-body h4 {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 14px 0 4px;
+  }
+  .modal-body h4:first-child {
+    margin-top: 0;
+  }
+  .modal-body p {
+    margin-bottom: 10px;
+  }
+  .modal-footer {
+    padding: 14px 24px;
+    border-top: 1px solid var(--line);
+    background: #F5F5F7;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  }
   .hidden { display: none !important; }
 
   @media (max-width: 980px) {
@@ -875,6 +993,27 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
             <input id="lead-email" name="email" type="email" class="text-input" placeholder="name@company.com" required autocomplete="email" autofocus />
           </div>
 
+          <!-- Mandatory Legal Terms & Data Disclaimer for Non-Sybyl Guests -->
+          <div id="terms-container" class="terms-box">
+            <label class="terms-check-label" for="terms-checkbox">
+              <input id="terms-checkbox" name="terms_accepted" type="checkbox" required />
+              <span>
+                <strong>I agree to the Terms &amp; Conditions and Use-at-Your-Own-Risk Disclaimer</strong> <span style="color:var(--danger);font-weight:700;">(Required for non-Sybyl visitors)</span>
+              </span>
+            </label>
+            <ul class="terms-bullets">
+              <li><strong>No Account &amp; Email-Only Capture:</strong> You do not create an account with Sybyl. Sybyl only captures your business email address and maintains no other account or profile records.</li>
+              <li><strong>Zero Data Storage by Sybyl:</strong> Any documents or data you upload into the applications are uploaded on your own initiative. Sybyl does <strong>not</strong> store, retain, or archive your uploaded data.</li>
+              <li><strong>Corporate Google Gemini Engine:</strong> Inputs are processed by Sybyl's corporate Google Gemini engine. While Google Gemini applies enterprise data safeguards, Sybyl does not control or know where Google Gemini processes or stores information.</li>
+              <li><strong>Use at Your Own Sole Risk:</strong> All applications are provided <em>"AS IS"</em> for evaluation. You access these tools and upload any information strictly at your own risk.</li>
+            </ul>
+            <div style="margin-left:26px;margin-top:4px;">
+              <button type="button" id="open-terms-modal-btn" class="terms-modal-link">Read Full Legal Terms &amp; Liability Disclaimer</button>
+              <span style="color:var(--muted);margin:0 6px;">·</span>
+              <a href="/terms" target="_blank" rel="noopener" class="terms-modal-link">Open in New Tab ↗</a>
+            </div>
+          </div>
+
           <button id="send-code-btn" type="submit" class="primary-btn">
             <span>Send 6-Digit Sign-In Code</span>
             <span>→</span>
@@ -932,9 +1071,46 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     </section>
   </div>
 
+  <!-- Full Legal Terms & Conditions Modal -->
+  <div id="terms-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div id="terms-modal-title" class="modal-title">Terms &amp; Conditions, Data Processing &amp; Risk Disclaimer</div>
+        <button type="button" id="close-terms-modal-btn" class="modal-close">✕ Close</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>IMPORTANT LEGAL NOTICE FOR EXTERNAL (NON-SYBYL) USERS:</strong> Please read these Terms &amp; Conditions carefully before accessing the Sybyl Agentic AI Portfolio. By checking the acceptance box or signing in with your business email address, you legally agree to the following terms on behalf of yourself and your organisation:</p>
+
+        <h4>1. No Account Creation &amp; Business Email-Only Capture</h4>
+        <p>You are not required to create an account with Sybyl, and accessing this portal does not establish a customer account, user profile, or service contract with Sybyl. The only information Sybyl captures is your <strong>business email address</strong> (to verify access via one-time passcode and for business communications). Sybyl does not maintain any other records of your account.</p>
+
+        <h4>2. User-Initiated Uploads &amp; Zero Data Storage by Sybyl</h4>
+        <p>All files, documents, statements, contracts, images, audio recordings, or text prompts that you upload or enter into any of the 61 applications are submitted strictly on your own volition and responsibility. <strong>Sybyl does not store, archive, or maintain permanent records of any documents or business data you upload into the applications.</strong></p>
+
+        <h4>3. Corporate Google Gemini Engine &amp; Third-Party Cloud Processing</h4>
+        <p>The agents in this portfolio utilize Sybyl's corporate <strong>Google Gemini</strong> engine to read documents and process inputs. While our corporate Google Gemini environment applies Google's enterprise data safeguards, <strong>Sybyl does not store your uploaded data and does not control, inspect, or know the specific geographic locations or internal Google infrastructure where Google Gemini processes or stores information.</strong></p>
+
+        <h4>4. Assumption of Risk ("Use at Your Own Risk")</h4>
+        <p><strong>You access and use these applications, and upload any data or documents, strictly at your own sole risk.</strong> You are solely responsible for ensuring that you have the legal right, authority, and necessary consents before uploading any file or information, and you should not upload confidential, regulated, or sensitive production data unless you assume full responsibility for doing so.</p>
+
+        <h4>5. "AS IS" Provision &amp; Disclaimer of Warranties</h4>
+        <p>All applications and AI-generated outputs are provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis for evaluation and demonstration purposes only, without warranties of any kind (express or implied), including accuracy, completeness, fitness for a particular purpose, or regulatory compliance. Outputs do not constitute formal financial, legal, underwriting, tax, or professional advice.</p>
+
+        <h4>6. Complete Limitation of Liability &amp; Indemnification</h4>
+        <p>To the fullest extent permitted by law, Sybyl, its affiliates, directors, officers, and employees disclaim all liability and shall not be responsible for any direct, indirect, incidental, consequential, or special damages, loss of data, regulatory claims, or business decisions arising from your access to the portal or any data uploaded by you. You agree to indemnify and hold Sybyl harmless from any claim arising out of your use of the applications or any content you submit.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="accept-terms-modal-btn" class="primary-btn" style="width:auto;padding:10px 20px;">
+          <span>I Understand &amp; Accept Terms</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
 <script>
   const NEXT_URL = __NEXT_URL_JSON__;
   let activeEmail = "";
+  let activeTermsAccepted = false;
   let resendTimer = null;
 
   const statusBanner = document.getElementById("status-banner");
@@ -946,6 +1122,33 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
   const resendCodeBtn = document.getElementById("resend-code-btn");
   const otpInput = document.getElementById("otp-code-input");
   const otpTargetEmail = document.getElementById("otp-target-email");
+  const termsCheckbox = document.getElementById("terms-checkbox");
+  const termsModal = document.getElementById("terms-modal");
+  const openTermsBtn = document.getElementById("open-terms-modal-btn");
+  const closeTermsBtn = document.getElementById("close-terms-modal-btn");
+  const acceptTermsModalBtn = document.getElementById("accept-terms-modal-btn");
+
+  openTermsBtn.addEventListener("click", () => {
+    termsModal.classList.remove("hidden");
+  });
+  closeTermsBtn.addEventListener("click", () => {
+    termsModal.classList.add("hidden");
+  });
+  acceptTermsModalBtn.addEventListener("click", () => {
+    termsCheckbox.checked = true;
+    termsModal.classList.add("hidden");
+    clearStatus();
+  });
+  termsModal.addEventListener("click", (e) => {
+    if (e.target === termsModal) {
+      termsModal.classList.add("hidden");
+    }
+  });
+
+  function isSybylStaffEmail(emailStr) {
+    const clean = (emailStr || "").trim().toLowerCase();
+    return clean.endsWith("@sybyl.com");
+  }
 
   function showStatus(msg, type = "error") {
     statusBanner.textContent = msg;
@@ -985,6 +1188,12 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
       return;
     }
 
+    const isStaff = isSybylStaffEmail(emailVal);
+    if (!isStaff && !termsCheckbox.checked) {
+      showStatus("Please accept the Terms & Conditions and Data Processing Disclaimer to continue.", "error");
+      return;
+    }
+
     sendCodeBtn.disabled = true;
     sendCodeBtn.innerHTML = "<span>Sending verification code...</span>";
 
@@ -993,7 +1202,8 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: emailVal
+          email: emailVal,
+          terms_accepted: isStaff ? true : Boolean(termsCheckbox.checked)
         })
       });
       const data = await resp.json();
@@ -1003,6 +1213,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
       }
 
       activeEmail = emailVal;
+      activeTermsAccepted = isStaff ? true : Boolean(termsCheckbox.checked);
       otpTargetEmail.textContent = emailVal;
 
       requestForm.classList.add("hidden");
@@ -1037,7 +1248,8 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: activeEmail,
-          code: codeVal
+          code: codeVal,
+          terms_accepted: activeTermsAccepted
         })
       });
       const data = await resp.json();
@@ -1072,7 +1284,8 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: activeEmail
+          email: activeEmail,
+          terms_accepted: activeTermsAccepted
         })
       });
       const data = await resp.json();

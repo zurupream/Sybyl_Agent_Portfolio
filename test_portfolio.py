@@ -59,9 +59,17 @@ def test_unauthenticated_redirects_to_login():
     assert "Sybyl Staff" in login_res.text
     assert "61" in login_res.text
     assert 'id="lead-email"' in login_res.text
+    assert 'id="terms-checkbox"' in login_res.text
+    assert "Use-at-Your-Own-Risk Disclaimer" in login_res.text
     assert 'id="lead-name"' not in login_res.text
     assert 'id="lead-role"' not in login_res.text
     assert ("ka" + "ren") not in login_res.text.lower()
+
+    terms_res = client.get("/terms")
+    assert terms_res.status_code == 200
+    assert "No Account Creation &amp; Business Email-Only Capture" in terms_res.text
+    assert "Corporate Google Gemini Engine" in terms_res.text
+    assert "Use at Your Own Risk" in terms_res.text
 
 
 def test_consumer_and_disposable_domains_blocked():
@@ -94,11 +102,23 @@ def test_full_passwordless_lead_capture_and_portfolio_access():
 
     client = TestClient(app)
 
-    # 1. Request OTP with ONLY business work email
+    # 1a. Non-Sybyl visitor MUST accept Terms & Conditions (rejected with 400 if terms_accepted=False)
+    missing_terms_res = client.post(
+        "/auth/email/send-otp",
+        json={
+            "email": "jane.muthoni@equitybank.co.ke",
+            "terms_accepted": False,
+        },
+    )
+    assert missing_terms_res.status_code == 400
+    assert "Terms & Conditions" in missing_terms_res.json()["error"]
+
+    # 1b. Request OTP with ONLY business work email + terms_accepted=True
     send_res = client.post(
         "/auth/email/send-otp",
         json={
             "email": "jane.muthoni@equitybank.co.ke",
+            "terms_accepted": True,
         },
     )
     assert send_res.status_code == 200
@@ -177,9 +197,7 @@ def test_admin_lead_telemetry_and_csv_export():
         "/auth/email/send-otp",
         json={
             "email": "zuruprem@gmail.com",
-            "name": "Guruprem Saginadham",
-            "company": "Sybyl",
-            "role": "Head of AI Engineering",
+            "terms_accepted": True,
         },
     )
     assert send_res.status_code == 200
