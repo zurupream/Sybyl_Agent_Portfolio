@@ -245,3 +245,51 @@ def test_admin_lead_telemetry_and_csv_export():
     assert "jane.muthoni@equitybank.co.ke" in csv_res.text
     assert "equitybank.co.ke" in csv_res.text
     assert "Bank Statement Analyzer" in csv_res.text
+
+
+def test_sso_tokens_and_storage_keys_completeness():
+    # Ensure all newly required JSON user profile keys are present
+    for required_key in [
+        "sybyl_onboarding_auth_v2",
+        "sybyl_hr_auth_session",
+        "aida_sybyl_user_session",
+        "insureiq.user",
+        "onboarding_prep_agent_user",
+        "banking_rm_user",
+        "clara_auth_user",
+    ]:
+        assert required_key in sso_gateway.SSO_STORAGE_KEYS
+
+    user = {
+        "email": "jane.muthoni@equitybank.co.ke",
+        "name": "Jane Muthoni",
+        "company": "Equity Bank Kenya",
+        "role": "Director",
+        "provider": "email_otp",
+    }
+    rm_token = sso_gateway.mint_banking_rm_token(user)
+    assert rm_token.startswith("rmsession.")
+    assert len(rm_token.split(".")) == 3
+
+    clara_token = sso_gateway.mint_clara_session_token(user)
+    assert len(clara_token.split(".")) == 2
+
+    ca_token = sso_gateway.mint_contracts_analyzer_jwt(user)
+    assert len(ca_token.split(".")) == 3
+
+    script = sso_gateway.build_sso_injection_script(
+        user,
+        catalog.AGENTS_BY_SLUG["advisor-rm-insight-agent"],
+    )
+    for token_key in [
+        "banking_rm_id_token",
+        "clara_google_id_token",
+        "ca_jwt_token",
+        "supplier_prequal_jwt_token",
+        "expense_auditor_jwt",
+        "hr_google_id_token",
+        "aida_auth_token",
+        "insureiq.idtoken",
+    ]:
+        assert token_key in script
+

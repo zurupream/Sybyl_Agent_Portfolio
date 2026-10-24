@@ -333,11 +333,12 @@ def verify_google_credential(token: str) -> dict[str, Any]:
 def create_starlette_session_cookie_value(session_data: dict[str, Any]) -> str:
     """Create a Starlette SessionMiddleware-compatible signed cookie string.
 
-    This allows upstream Starlette apps sharing SESSION_SECRET (such as
+    This allows upstream Starlette apps sharing DEFAULT_SESSION_SECRET (such as
     bank-statement-agent) to immediately accept the authenticated session.
     """
     payload = base64.b64encode(json.dumps(session_data).encode("utf-8"))
-    signer = TimestampSigner(get_session_secret())
+    upstream_secret = os.environ.get("UPSTREAM_SESSION_SECRET", "").strip() or DEFAULT_SESSION_SECRET
+    signer = TimestampSigner(upstream_secret)
     return signer.sign(payload).decode("utf-8")
 
 
@@ -1357,15 +1358,28 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
   function seedClientSsoStorage(user, rawIdToken = "") {
     try {
       const profile = {
+        id: "sso-user",
         email: user.email,
         name: user.name || user.email,
+        full_name: user.name || user.email,
         company: user.company || "Enterprise",
-        role: user.role || "Executive",
+        role: user.role || "Administrator",
+        roles: ["admin", "credit_control", "approver"],
+        department: "Enterprise Operations",
+        domain: "sybyl.com",
         picture: user.picture || "",
         provider: user.provider || "email_otp",
-        authenticated: true
+        auth_mode: user.provider || "email_otp",
+        loginMethod: user.provider || "email_otp",
+        authenticatedVia: "Google Cloud Identity",
+        authenticated: true,
+        verified: true,
+        is_admin: true,
+        signedInAt: new Date().toISOString(),
+        exp: Date.now() + 28800000
       };
       const jsonStr = JSON.stringify(profile);
+      const tokenVal = rawIdToken || ("demo-token:" + user.email);
       const keys = __SSO_STORAGE_KEYS_JSON__;
       for (const k of keys) {
         localStorage.setItem(k, jsonStr);
@@ -1373,8 +1387,12 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
       }
       localStorage.setItem("sybyl_sso_user", jsonStr);
       localStorage.setItem("sybyl_portal_authenticated", "true");
+      sessionStorage.setItem("sybyl_portal_authenticated", "1");
       localStorage.setItem("supplier_prequal_portal_authenticated", "true");
-      sessionStorage.setItem("hr_google_id_token", rawIdToken || ("demo-token:" + user.email));
+      sessionStorage.setItem("hr_google_id_token", tokenVal);
+      localStorage.setItem("aida_auth_token", tokenVal);
+      sessionStorage.setItem("insureiq.user", jsonStr);
+      sessionStorage.setItem("insureiq.idtoken", tokenVal);
     } catch (_) {}
   }
 </script>

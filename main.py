@@ -44,7 +44,7 @@ from leads import (
 )
 from mail import send_otp_email
 from otp import OTPRateLimitError, issue_otp, verify_otp
-from sso_gateway import SSO_STORAGE_KEYS, proxy_agent_request
+from sso_gateway import SSO_STORAGE_KEYS, build_sso_profile, proxy_agent_request
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -315,6 +315,7 @@ async def auth_google(request: Request) -> JSONResponse:
         "company": lead_record.get("company") or verified.get("company", "Sybyl"),
         "role": lead_record.get("role") or verified.get("role", "Sybyl Staff"),
         "is_admin": is_admin_user(email),
+        "google_id_token": credential,
     }
     request.session["user"] = session_user
 
@@ -592,7 +593,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
                       <span aria-hidden="true">→</span>
                     </a>
                     {secondary_btn_html}
-                    <a href="{live_url}" target="_blank" rel="noopener" class="btn-direct-url" title="Open direct Cloud Run URL in new tab">
+                    <a href="/app/{slug}{html.escape(agent.get('default_path', '/'))}" target="_blank" rel="noopener" class="btn-direct-url" title="Open SSO-authenticated agent in a new full browser tab">
                       <span>Direct ↗</span>
                     </a>
                   </div>
@@ -620,16 +621,10 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
             """
         )
 
-    user_json = json.dumps(
-        {
-            "email": user.get("email", ""),
-            "name": user.get("name", ""),
-            "company": user.get("company", ""),
-            "role": user.get("role", ""),
-            "picture": user.get("picture", ""),
-            "provider": user.get("provider", "email_otp"),
-            "authenticated": True,
-        }
+    sso_profile = build_sso_profile(user)
+    user_json = json.dumps(sso_profile)
+    google_id_token_json = json.dumps(
+        user.get("google_id_token") or f"demo-token:{sso_profile['email']}"
     )
 
     return f"""<!DOCTYPE html>
@@ -647,6 +642,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     try {{
       var profile = {user_json};
       var profileStr = JSON.stringify(profile);
+      var tokenVal = {google_id_token_json};
       var keys = {json.dumps(SSO_STORAGE_KEYS)};
       for (var i = 0; i < keys.length; i++) {{
         localStorage.setItem(keys[i], profileStr);
@@ -654,10 +650,12 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
       }}
       localStorage.setItem("sybyl_sso_user", profileStr);
       localStorage.setItem("sybyl_portal_authenticated", "true");
+      sessionStorage.setItem("sybyl_portal_authenticated", "1");
       localStorage.setItem("supplier_prequal_portal_authenticated", "true");
-      if (!sessionStorage.getItem("hr_google_id_token")) {{
-        sessionStorage.setItem("hr_google_id_token", "demo-token:" + profile.email);
-      }}
+      sessionStorage.setItem("hr_google_id_token", tokenVal);
+      localStorage.setItem("aida_auth_token", tokenVal);
+      sessionStorage.setItem("insureiq.user", profileStr);
+      sessionStorage.setItem("insureiq.idtoken", tokenVal);
     }} catch (_) {{}}
   }})();
 </script>
@@ -1242,13 +1240,32 @@ async def portfolio_home(request: Request) -> Response:
 # =============================================================================
 
 
+SLUG_ALIASES: dict[str, str] = {
+    "banking-rm-pro": "advisor-rm-insight-agent",
+    "client-onboarding-kyc-pro": "account-onboarding-prep-agent",
+    "candidates-screening-agent": "public-candidate-screening-agent",
+    "motor-claims-intake-vetting-agent": "multimodal-motor-claims-intake-agent",
+    "hr-shortlisting-agent": "hr-candidates-screening-agent",
+    "hr-recruitment-copilot": "hr-candidates-screening-agent",
+}
+
+
+def _resolve_agent(agent_slug: str) -> dict[str, Any] | None:
+    if agent_slug in AGENTS_BY_SLUG:
+        return AGENTS_BY_SLUG[agent_slug]
+    canonical = SLUG_ALIASES.get(agent_slug)
+    if canonical and canonical in AGENTS_BY_SLUG:
+        return AGENTS_BY_SLUG[canonical]
+    return None
+
+
 @app.get("/launch/{agent_slug}", response_class=HTMLResponse)
 async def launch_agent_workspace(request: Request, agent_slug: str) -> Response:
     user = _current_user(request)
     if not user:
         return RedirectResponse(f"/login?next=/launch/{agent_slug}", status_code=302)
 
-    agent = AGENTS_BY_SLUG.get(agent_slug)
+    agent = _resolve_agent(agent_slug)
     if not agent:
         return RedirectResponse("/", status_code=302)
 
@@ -1259,15 +1276,15 @@ async def launch_agent_workspace(request: Request, agent_slug: str) -> Response:
         agent_title=agent["title"],
     )
 
+    proxied_entry = f"/app/{agent['slug']}{agent.get('default_path', '/')}"
+
     if request.query_params.get("mode") == "direct":
-        return RedirectResponse(agent["live_url"], status_code=302)
+        return RedirectResponse(proxied_entry, status_code=302)
 
     title_esc = html.escape(agent["title"])
     sector_esc = html.escape(agent["sector"])
-    live_url_esc = html.escape(agent["live_url"])
     user_name_esc = html.escape(str(user.get("name") or user.get("email") or ""))
     user_email_esc = html.escape(str(user.get("email") or ""))
-    proxied_entry = f"/app/{agent['slug']}{agent.get('default_path', '/')}"
 
     workspace_html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -1392,7 +1409,7 @@ async def launch_agent_workspace(request: Request, agent_slug: str) -> Response:
           <span>SSO Active: {user_name_esc} ({user_email_esc})</span>
         </span>
         <a href="{proxied_entry}" target="_blank" rel="noopener" class="back-btn">Full Tab (SSO) ↗</a>
-        <a href="{live_url_esc}" target="_blank" rel="noopener" class="direct-btn">Cloud Run Origin ↗</a>
+        <a href="{proxied_entry}" target="_blank" rel="noopener" class="direct-btn">Open Full Screen ↗</a>
       </div>
     </header>
     <iframe class="sso-frame" src="{proxied_entry}" title="{title_esc}"></iframe>
@@ -1418,7 +1435,7 @@ async def proxy_agent_subpath(request: Request, agent_slug: str, subpath: str) -
     user = _current_user(request)
     if not user:
         return RedirectResponse(f"/login?next=/launch/{agent_slug}", status_code=302)
-    agent = AGENTS_BY_SLUG.get(agent_slug)
+    agent = _resolve_agent(agent_slug)
     if not agent:
         return JSONResponse({"error": f"Unknown agent slug '{agent_slug}'."}, status_code=404)
     return await proxy_agent_request(request, agent, subpath, user)
@@ -1767,13 +1784,26 @@ async def active_agent_asset_fallback(request: Request, call_next):
     if path == "/" or any(path.startswith(p) for p in PORTAL_OWN_PREFIXES):
         return await call_next(request)
 
-    active_slug = request.cookies.get("sybyl_active_agent")
-    if active_slug and active_slug in AGENTS_BY_SLUG:
+    active_agent = None
+    referer = request.headers.get("referer") or ""
+    if "/app/" in referer:
+        try:
+            after_app = referer.split("/app/", 1)[1]
+            candidate_slug = after_app.split("/", 1)[0].split("?", 1)[0].strip()
+            active_agent = _resolve_agent(candidate_slug)
+        except Exception:
+            pass
+
+    if not active_agent:
+        cookie_slug = request.cookies.get("sybyl_active_agent") or ""
+        active_agent = _resolve_agent(cookie_slug)
+
+    if active_agent:
         user = _current_user(request)
         if user:
             return await proxy_agent_request(
                 request,
-                AGENTS_BY_SLUG[active_slug],
+                active_agent,
                 path.lstrip("/"),
                 user,
             )
