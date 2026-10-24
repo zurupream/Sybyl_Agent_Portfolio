@@ -355,20 +355,83 @@ async def serve_sybyl_logo() -> Response:
 async def terms_and_conditions_page() -> HTMLResponse:
     """Standalone Legal Terms & Conditions, Data Processing & Risk Disclaimer page."""
     html_doc = """<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="sand">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Terms &amp; Conditions, Data Processing &amp; Risk Disclaimer — Sybyl Enterprise AI</title>
+<script>
+  (function() {
+    try {
+      var saved = localStorage.getItem("sybyl_portfolio_theme") || "sand";
+      if (["daylight", "sand", "dusk", "midnight"].indexOf(saved) === -1) saved = "sand";
+      document.documentElement.setAttribute("data-theme", saved);
+      if (saved === "dusk" || saved === "midnight") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    } catch (_) {}
+  })();
+</script>
 <style>
-  :root {
-    --bg: #F5F5F7;
-    --surface: #FFFFFF;
-    --ink: #1D1D1F;
-    --ink-secondary: #515154;
-    --muted: #86868B;
-    --line: #E5E5EA;
+  :root,
+  [data-theme="sand"] {
+    --bg-canvas: #F7F5F0;
+    --bg-sidebar: #EFECE6;
+    --bg-card: #FFFFFF;
+    --text-primary: #1E1B18;
+    --text-muted: #78716C;
+    --border-subtle: rgba(0, 0, 0, 0.07);
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --ink: var(--text-primary);
+    --ink-secondary: #44403C;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
     --accent: #0071E3;
+  }
+  [data-theme="daylight"] {
+    --bg-canvas: #F5F5F7;
+    --bg-sidebar: #EBEBED;
+    --bg-card: #FFFFFF;
+    --text-primary: #1D1D1F;
+    --text-muted: #6E6E73;
+    --border-subtle: rgba(0, 0, 0, 0.08);
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --ink: var(--text-primary);
+    --ink-secondary: #515154;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
+  }
+  [data-theme="dusk"] {
+    --bg-canvas: #1C1E26;
+    --bg-sidebar: #16181F;
+    --bg-card: #242834;
+    --text-primary: #E2E8F0;
+    --text-muted: #94A3B8;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --ink: var(--text-primary);
+    --ink-secondary: #CBD5E1;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
+  }
+  [data-theme="midnight"] {
+    --bg-canvas: #0B0C10;
+    --bg-sidebar: #12141C;
+    --bg-card: #161923;
+    --text-primary: #F8FAFC;
+    --text-muted: #64748B;
+    --border-subtle: rgba(255, 255, 255, 0.07);
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --ink: var(--text-primary);
+    --ink-secondary: #CBD5E1;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -464,9 +527,9 @@ async def terms_and_conditions_page() -> HTMLResponse:
       Any documents, files, statements, contracts, invoices, images, audio recordings, or text prompts that you upload or enter into any of the 61 applications are uploaded strictly on your own initiative and responsibility. <strong>Sybyl does not capture, store, archive, or maintain permanent records of any documents or business data you upload into these applications.</strong>
     </p>
 
-    <h2>3. Corporate Google Gemini Enterprise Safeguards &amp; Zero Model Training</h2>
+    <h2>3. Corporate Enterprise AI Safeguards &amp; Zero Model Training</h2>
     <p>
-      The applications in this portfolio process uploaded documents and inputs through Sybyl's corporate <strong>Google Gemini Enterprise</strong> engine governed by Google Cloud's enterprise data privacy commitments. <strong>Your uploaded documents, prompts, and generated outputs are protected by enterprise-grade safeguards and are never used to train Google's foundation models or shared with third parties.</strong> Sybyl itself does not store, inspect, or retain copies of your uploaded data.
+      The applications in this portfolio process uploaded documents and inputs through Sybyl's corporate <strong>Enterprise AI</strong> engine governed by enterprise cloud data privacy commitments. <strong>Your uploaded documents, prompts, and generated outputs are protected by enterprise-grade safeguards and are never used to train foundation models or shared with third parties.</strong> Sybyl itself does not store, inspect, or retain copies of your uploaded data.
     </p>
 
     <h2>4. Generative AI Safeguard ("AI Can Make Mistakes") &amp; Human Verification</h2>
@@ -628,7 +691,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     )
 
     return f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="sand">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -637,6 +700,18 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
+  (function() {{
+    try {{
+      var saved = localStorage.getItem("sybyl_portfolio_theme") || "sand";
+      if (["daylight", "sand", "dusk", "midnight"].indexOf(saved) === -1) saved = "sand";
+      document.documentElement.setAttribute("data-theme", saved);
+      if (saved === "dusk" || saved === "midnight") {{
+        document.documentElement.classList.add("dark");
+      }} else {{
+        document.documentElement.classList.remove("dark");
+      }}
+    }} catch (_) {{}}
+  }})();
   // Ensure browser localStorage & sessionStorage are pre-seeded with the active SSO session
   (function() {{
     try {{
@@ -660,19 +735,127 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
   }})();
 </script>
 <style>
-  :root {{
-    --bg: #F5F5F7;
-    --surface: #FFFFFF;
-    --ink: #1D1D1F;
-    --ink-secondary: #515154;
-    --muted: #86868B;
-    --line: #E5E5EA;
-    --line-strong: #D2D2D7;
+  :root,
+  [data-theme="sand"] {{
+    --bg-canvas: #F7F5F0;
+    --bg-sidebar: #EFECE6;
+    --bg-card: #FFFFFF;
+    --text-primary: #1E1B18;
+    --text-muted: #78716C;
+    --border-subtle: rgba(0, 0, 0, 0.07);
+
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --surface-subtle: var(--bg-sidebar);
+    --topbar-bg: rgba(247, 245, 240, 0.88);
+    --value-box-bg: #F5F9FF;
+    --ink: var(--text-primary);
+    --ink-secondary: #44403C;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
+    --line-strong: rgba(0, 0, 0, 0.14);
     --accent: #0071E3;
     --accent-hover: #0077ED;
     --accent-soft: rgba(0, 113, 227, 0.08);
     --success: #1D7D3F;
     --success-soft: #EBF7EE;
+  }}
+  [data-theme="daylight"] {{
+    --bg-canvas: #F5F5F7;
+    --bg-sidebar: #EBEBED;
+    --bg-card: #FFFFFF;
+    --text-primary: #1D1D1F;
+    --text-muted: #6E6E73;
+    --border-subtle: rgba(0, 0, 0, 0.08);
+
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --surface-subtle: var(--bg-sidebar);
+    --topbar-bg: rgba(255, 255, 255, 0.86);
+    --value-box-bg: #F5F9FF;
+    --ink: var(--text-primary);
+    --ink-secondary: #515154;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
+    --line-strong: #D2D2D7;
+  }}
+  [data-theme="dusk"] {{
+    --bg-canvas: #1C1E26;
+    --bg-sidebar: #16181F;
+    --bg-card: #242834;
+    --text-primary: #E2E8F0;
+    --text-muted: #94A3B8;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --surface-subtle: var(--bg-sidebar);
+    --topbar-bg: rgba(22, 24, 31, 0.88);
+    --value-box-bg: rgba(0, 113, 227, 0.12);
+    --ink: var(--text-primary);
+    --ink-secondary: #CBD5E1;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
+    --line-strong: rgba(255, 255, 255, 0.16);
+    --accent-soft: rgba(0, 113, 227, 0.18);
+  }}
+  [data-theme="midnight"] {{
+    --bg-canvas: #0B0C10;
+    --bg-sidebar: #12141C;
+    --bg-card: #161923;
+    --text-primary: #F8FAFC;
+    --text-muted: #64748B;
+    --border-subtle: rgba(255, 255, 255, 0.07);
+
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --surface-subtle: var(--bg-sidebar);
+    --topbar-bg: rgba(18, 20, 28, 0.9);
+    --value-box-bg: rgba(0, 113, 227, 0.14);
+    --ink: var(--text-primary);
+    --ink-secondary: #CBD5E1;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
+    --line-strong: rgba(255, 255, 255, 0.14);
+    --accent-soft: rgba(0, 113, 227, 0.2);
+  }}
+  .apple-theme-switcher {{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: var(--surface-subtle);
+    border: 1px solid var(--line-strong);
+    flex-shrink: 0;
+  }}
+  .apple-theme-label {{
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }}
+  .apple-theme-dots {{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }}
+  .apple-theme-dot {{
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(128, 128, 128, 0.35);
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }}
+  .apple-theme-dot:hover {{
+    transform: scale(1.12);
+  }}
+  .apple-theme-dot.active {{
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+    transform: scale(1.08);
   }}
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{
@@ -681,13 +864,14 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
     padding-bottom: 80px;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }}
   /* Top Frosted Navigation Bar */
   .topbar {{
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(255, 255, 255, 0.86);
+    background: var(--topbar-bg);
     backdrop-filter: saturate(180%) blur(20px);
     border-bottom: 1px solid var(--line);
     padding: 14px 32px;
@@ -734,7 +918,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     gap: 8px;
     padding: 7px 14px;
     border-radius: 999px;
-    background: #F5F5F7;
+    background: var(--surface-subtle);
     border: 1px solid var(--line);
     font-size: 12.5px;
     font-weight: 600;
@@ -770,7 +954,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     text-decoration: none;
     border: 1px solid var(--line-strong);
     color: var(--ink);
-    background: #FFFFFF;
+    background: var(--surface);
     transition: all 0.15s ease;
     white-space: nowrap;
     flex-shrink: 0;
@@ -818,7 +1002,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     padding: 0 16px 0 42px;
     border-radius: 12px;
     border: 1px solid var(--line-strong);
-    background: #F5F5F7;
+    background: var(--surface-subtle);
     font-size: 14.5px;
     color: var(--ink);
     font-family: inherit;
@@ -826,7 +1010,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
   }}
   .search-input:focus {{
     outline: none;
-    background: #FFFFFF;
+    background: var(--surface);
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
   }}
@@ -856,7 +1040,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     padding: 8px 14px;
     border-radius: 999px;
     border: 1px solid var(--line);
-    background: #F5F5F7;
+    background: var(--surface-subtle);
     color: var(--ink-secondary);
     font-size: 12.8px;
     font-weight: 600;
@@ -878,7 +1062,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     border-radius: 999px;
     font-size: 11px;
     font-weight: 700;
-    background: rgba(0, 0, 0, 0.07);
+    background: rgba(128, 128, 128, 0.15);
   }}
   .sector-tab.active .tab-count {{
     background: rgba(255, 255, 255, 0.24);
@@ -972,7 +1156,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     font-size: 11.5px;
     font-weight: 600;
     color: var(--ink-secondary);
-    background: #F5F5F7;
+    background: var(--surface-subtle);
     padding: 3px 10px;
     border-radius: 999px;
   }}
@@ -1027,7 +1211,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     color: var(--ink-secondary);
   }}
   .agent-value-box {{
-    background: #F5F9FF;
+    background: var(--value-box-bg);
     border: 1px solid rgba(0, 113, 227, 0.16);
     border-radius: 12px;
     padding: 11px 13px;
@@ -1080,7 +1264,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     padding: 0 13px;
     border-radius: 999px;
     border: 1px solid var(--line-strong);
-    background: #FFFFFF;
+    background: var(--surface);
     color: var(--ink-secondary);
     font-size: 12.5px;
     font-weight: 600;
@@ -1130,6 +1314,15 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     </div>
 
     <div class="user-cluster">
+      <div class="apple-theme-switcher" role="group" aria-label="Appearance Theme">
+        <span class="apple-theme-label">Theme</span>
+        <div class="apple-theme-dots">
+          <button type="button" class="apple-theme-dot" data-set-theme="daylight" title="Daylight" aria-label="Daylight Theme" style="background:#F5F5F7;"></button>
+          <button type="button" class="apple-theme-dot" data-set-theme="sand" title="Sand (Default)" aria-label="Sand Theme" style="background:#F7F5F0;"></button>
+          <button type="button" class="apple-theme-dot" data-set-theme="dusk" title="Dusk" aria-label="Dusk Theme" style="background:#1C1E26;"></button>
+          <button type="button" class="apple-theme-dot" data-set-theme="midnight" title="Midnight" aria-label="Midnight Theme" style="background:#0B0C10;"></button>
+        </div>
+      </div>
       <div class="user-badge" title="Signed in via Single Sign-On">
         <span class="user-dot"></span>
         <span>{user_name}</span>
@@ -1155,7 +1348,7 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
     </section>
 
     <div id="empty-search-state" class="empty-state">
-      <h3 style="font-size:18px;margin-bottom:6px;color:#1D1D1F;">No matching agents found</h3>
+      <h3 style="font-size:18px;margin-bottom:6px;color:var(--ink);">No matching agents found</h3>
       <p style="font-size:14px;">Try clearing your search filter or selecting "All Sectors".</p>
     </div>
 
@@ -1164,6 +1357,29 @@ def _render_portfolio_page(user: dict[str, Any]) -> str:
 
   <script>
     (function() {{
+      const themeDots = document.querySelectorAll("[data-set-theme]");
+      function applyTheme(t) {{
+        if (["daylight", "sand", "dusk", "midnight"].indexOf(t) === -1) t = "sand";
+        document.documentElement.setAttribute("data-theme", t);
+        if (t === "dusk" || t === "midnight") {{
+          document.documentElement.classList.add("dark");
+        }} else {{
+          document.documentElement.classList.remove("dark");
+        }}
+        try {{ localStorage.setItem("sybyl_portfolio_theme", t); }} catch (_) {{}}
+        themeDots.forEach((btn) => {{
+          btn.classList.toggle("active", btn.getAttribute("data-set-theme") === t);
+        }});
+      }}
+      let initialTheme = "sand";
+      try {{ initialTheme = localStorage.getItem("sybyl_portfolio_theme") || "sand"; }} catch (_) {{}}
+      applyTheme(initialTheme);
+      themeDots.forEach((btn) => {{
+        btn.addEventListener("click", () => {{
+          applyTheme(btn.getAttribute("data-set-theme"));
+        }});
+      }});
+
       const searchInput = document.getElementById("agent-search-input");
       const sectorTabs = document.querySelectorAll(".sector-tab");
       const cards = document.querySelectorAll(".agent-card");

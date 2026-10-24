@@ -45,6 +45,9 @@ def test_catalog_counts_and_strict_exclusions():
         assert forbidden_a not in blob, f"Forbidden client reference found in {agent['slug']}"
         assert forbidden_b not in blob, f"Forbidden client reference found in {agent['slug']}"
         assert "copilot" not in blob, f"Forbidden 'copilot' term found in {agent['slug']}"
+        assert "gemini" not in blob, f"Forbidden 'gemini' term found in {agent['slug']}"
+        assert "vertex" not in blob, f"Forbidden 'vertex' term found in {agent['slug']}"
+        assert "adk" not in blob, f"Forbidden 'adk' term found in {agent['slug']}"
 
 
 def test_unauthenticated_redirects_to_login():
@@ -62,6 +65,12 @@ def test_unauthenticated_redirects_to_login():
     assert 'id="terms-checkbox"' in login_res.text
     assert "Use-at-Your-Own-Risk Disclaimer" in login_res.text
     assert "/Sybyl-Logo.svg" in login_res.text
+    assert 'data-theme="sand"' in login_res.text
+    assert 'data-set-theme="daylight"' in login_res.text
+    assert 'data-set-theme="sand"' in login_res.text
+    assert 'data-set-theme="dusk"' in login_res.text
+    assert 'data-set-theme="midnight"' in login_res.text
+    assert "gemini" not in login_res.text.lower()
     assert 'id="lead-name"' not in login_res.text
     assert 'id="lead-role"' not in login_res.text
 
@@ -75,10 +84,11 @@ def test_unauthenticated_redirects_to_login():
     terms_res = client.get("/terms")
     assert terms_res.status_code == 200
     assert "No Account Creation &amp; Business Email-Only Capture" in terms_res.text
-    assert "Corporate Google Gemini Enterprise Safeguards" in terms_res.text
+    assert "Corporate Enterprise AI Safeguards" in terms_res.text
     assert "never used to train" in terms_res.text
     assert "AI Can Make Mistakes" in terms_res.text
     assert "Use at Your Own Risk" in terms_res.text
+    assert "gemini" not in terms_res.text.lower()
 
 
 def test_consumer_and_disposable_domains_blocked():

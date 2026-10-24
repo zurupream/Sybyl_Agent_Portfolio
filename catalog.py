@@ -722,7 +722,7 @@ RAW_AGENTS: list[dict[str, Any]] = [
         "title": "Competitive Price Tracker & Flash-Discount Strategy Agent",
         "what_it_does": (
             "Visually reads competitor websites, logs product prices over time, and uses "
-            "Gemini to separate short-term flash promos from structural cuts and recommend "
+            "AI reasoning to separate short-term flash promos from structural cuts and recommend "
             "margin-safe responses."
         ),
         "value": (

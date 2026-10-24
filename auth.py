@@ -343,7 +343,7 @@ def create_starlette_session_cookie_value(session_data: dict[str, Any]) -> str:
 
 
 LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="sand">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -352,15 +352,38 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  (function() {
+    try {
+      var saved = localStorage.getItem("sybyl_portfolio_theme") || "sand";
+      if (["daylight", "sand", "dusk", "midnight"].indexOf(saved) === -1) saved = "sand";
+      document.documentElement.setAttribute("data-theme", saved);
+      if (saved === "dusk" || saved === "midnight") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    } catch (_) {}
+  })();
+</script>
 <style>
-  :root {
-    --bg: #F5F5F7;
-    --surface: #FFFFFF;
-    --ink: #1D1D1F;
-    --ink-secondary: #515154;
-    --muted: #86868B;
-    --line: #E5E5EA;
-    --line-strong: #D2D2D7;
+  :root,
+  [data-theme="sand"] {
+    --bg-canvas: #F7F5F0;
+    --bg-sidebar: #EFECE6;
+    --bg-card: #FFFFFF;
+    --text-primary: #1E1B18;
+    --text-muted: #78716C;
+    --border-subtle: rgba(0, 0, 0, 0.07);
+
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --surface-subtle: var(--bg-sidebar);
+    --ink: var(--text-primary);
+    --ink-secondary: #44403C;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
+    --line-strong: rgba(0, 0, 0, 0.14);
     --accent: #0071E3;
     --accent-hover: #0077ED;
     --accent-soft: rgba(0, 113, 227, 0.08);
@@ -371,6 +394,96 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     --hero-bg-1: #0B101E;
     --hero-bg-2: #131D38;
   }
+  [data-theme="daylight"] {
+    --bg-canvas: #F5F5F7;
+    --bg-sidebar: #EBEBED;
+    --bg-card: #FFFFFF;
+    --text-primary: #1D1D1F;
+    --text-muted: #6E6E73;
+    --border-subtle: rgba(0, 0, 0, 0.08);
+
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --surface-subtle: var(--bg-sidebar);
+    --ink: var(--text-primary);
+    --ink-secondary: #515154;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
+    --line-strong: #D2D2D7;
+  }
+  [data-theme="dusk"] {
+    --bg-canvas: #1C1E26;
+    --bg-sidebar: #16181F;
+    --bg-card: #242834;
+    --text-primary: #E2E8F0;
+    --text-muted: #94A3B8;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --surface-subtle: var(--bg-sidebar);
+    --ink: var(--text-primary);
+    --ink-secondary: #CBD5E1;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
+    --line-strong: rgba(255, 255, 255, 0.16);
+    --accent-soft: rgba(0, 113, 227, 0.18);
+  }
+  [data-theme="midnight"] {
+    --bg-canvas: #0B0C10;
+    --bg-sidebar: #12141C;
+    --bg-card: #161923;
+    --text-primary: #F8FAFC;
+    --text-muted: #64748B;
+    --border-subtle: rgba(255, 255, 255, 0.07);
+
+    --bg: var(--bg-canvas);
+    --surface: var(--bg-card);
+    --surface-subtle: var(--bg-sidebar);
+    --ink: var(--text-primary);
+    --ink-secondary: #CBD5E1;
+    --muted: var(--text-muted);
+    --line: var(--border-subtle);
+    --line-strong: rgba(255, 255, 255, 0.14);
+    --accent-soft: rgba(0, 113, 227, 0.2);
+  }
+  .apple-theme-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--surface-subtle);
+    border: 1px solid var(--line-strong);
+  }
+  .apple-theme-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .apple-theme-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .apple-theme-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(128, 128, 128, 0.35);
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .apple-theme-dot:hover {
+    transform: scale(1.12);
+  }
+  .apple-theme-dot.active {
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+    transform: scale(1.08);
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
     height: 100vh;
@@ -380,6 +493,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     background: var(--bg);
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
   .split-layout {
     display: grid;
@@ -664,7 +778,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     padding: 0 12px;
     border-radius: 9px;
     border: 1px solid var(--line-strong);
-    background: #FAFAFC;
+    background: var(--surface-subtle);
     font-size: 13.5px;
     color: var(--ink);
     transition: all 0.15s ease;
@@ -673,7 +787,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
   .text-input:focus {
     outline: none;
     border-color: var(--accent);
-    background: #FFFFFF;
+    background: var(--surface);
     box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
   }
   .otp-input {
@@ -683,7 +797,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     font-weight: 700;
     letter-spacing: 8px;
     text-align: center;
-    background: #F5F5F7;
+    background: var(--surface-subtle);
   }
   .primary-btn {
     width: 100%;
@@ -770,7 +884,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     background: var(--line);
   }
   .staff-box {
-    background: #F5F5F7;
+    background: var(--surface-subtle);
     border: 1px solid var(--line);
     border-radius: 12px;
     padding: 10px 12px;
@@ -795,7 +909,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     text-align: center;
   }
   .terms-box {
-    background: #F5F5F7;
+    background: var(--surface-subtle);
     border: 1px solid var(--line-strong);
     border-radius: 10px;
     padding: 9px 11px;
@@ -851,7 +965,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     padding: 16px;
   }
   .modal-dialog {
-    background: #FFFFFF;
+    background: var(--surface);
     border-radius: 16px;
     max-width: 820px;
     width: 100%;
@@ -875,7 +989,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
     color: var(--ink);
   }
   .modal-close {
-    background: #F5F5F7;
+    background: var(--surface-subtle);
     border: 1px solid var(--line);
     border-radius: 999px;
     padding: 5px 11px;
@@ -906,7 +1020,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
   .modal-footer {
     padding: 10px 20px;
     border-top: 1px solid var(--line);
-    background: #F5F5F7;
+    background: var(--surface-subtle);
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -932,7 +1046,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
           </div>
           <div>
             <div class="brand-name">Sybyl Enterprise AI</div>
-            <div class="brand-sub">Gemini Enterprise · Google ADK · Cloud Run</div>
+            <div class="brand-sub">Enterprise AI · Multi-Agent Orchestration · Cloud-Native</div>
           </div>
         </div>
       </div>
@@ -944,7 +1058,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
         </div>
         <h1 class="hero-title">Sign in once. Experience all 61 Enterprise AI Agents live.</h1>
         <p class="hero-subtitle">
-          Built on Gemini Enterprise concepts with deterministic Python rules and Human-in-the-Loop approval. Verify your work email once to explore and launch every live agent for free.
+          Built on Enterprise AI orchestration with deterministic Python rules and Human-in-the-Loop approval. Verify your work email once to explore and launch every live agent for free.
         </p>
 
         <div class="workflow-box">
@@ -960,7 +1074,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
             <div class="wf-step">
               <div class="wf-num">2</div>
               <div>
-                <div class="wf-title">Reasoning by Gemini · Rules &amp; Maths in Deterministic Python</div>
+                <div class="wf-title">AI Reasoning · Rules &amp; Maths in Deterministic Python</div>
                 <div class="wf-desc">The model reads documents and reasons; deterministic Python performs every calculation, rule check, and validation.</div>
               </div>
             </div>
@@ -1001,7 +1115,18 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
       <div class="auth-card">
         <div class="auth-card-logo">
           <img src="/Sybyl-Logo.svg" alt="Sybyl" />
-          <div class="auth-badge" style="margin-bottom:0;">Free Enterprise Access · Single Sign-On</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div class="apple-theme-switcher" role="group" aria-label="Appearance Theme">
+              <span class="apple-theme-label">Theme</span>
+              <div class="apple-theme-dots">
+                <button type="button" class="apple-theme-dot" data-set-theme="daylight" title="Daylight" aria-label="Daylight Theme" style="background:#F5F5F7;"></button>
+                <button type="button" class="apple-theme-dot" data-set-theme="sand" title="Sand (Default)" aria-label="Sand Theme" style="background:#F7F5F0;"></button>
+                <button type="button" class="apple-theme-dot" data-set-theme="dusk" title="Dusk" aria-label="Dusk Theme" style="background:#1C1E26;"></button>
+                <button type="button" class="apple-theme-dot" data-set-theme="midnight" title="Midnight" aria-label="Midnight Theme" style="background:#0B0C10;"></button>
+              </div>
+            </div>
+            <div class="auth-badge" style="margin-bottom:0;">Free Enterprise Access · Single Sign-On</div>
+          </div>
         </div>
         <h2 class="auth-title">Access the AI Agent Portfolio</h2>
         <p class="auth-subtitle">
@@ -1031,7 +1156,7 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
             <ul class="terms-bullets">
               <li><strong>No Account &amp; Email-Only Capture:</strong> You do not create an account with Sybyl. Sybyl only captures your business email address and maintains no other account or profile records.</li>
               <li><strong>Zero Data Storage by Sybyl:</strong> Any documents or data you upload into the applications are uploaded on your own initiative. Sybyl does <strong>not</strong> store, retain, or archive your uploaded data.</li>
-              <li><strong>Corporate Google Gemini Privacy Safeguards:</strong> Inputs are processed by Sybyl's corporate <strong>Google Gemini Enterprise</strong> engine under enterprise privacy commitments — <strong>your data and prompts are never used to train AI models</strong>.</li>
+              <li><strong>Corporate Enterprise AI Privacy Safeguards:</strong> Inputs are processed by Sybyl's corporate <strong>Enterprise AI</strong> engine under enterprise privacy commitments — <strong>your data and prompts are never used to train AI models</strong>.</li>
               <li><strong>AI Safeguard &amp; Use at Your Own Risk:</strong> AI can make mistakes — always verify important information before acting. All applications are provided <em>"AS IS"</em> for evaluation and used strictly at your own risk.</li>
             </ul>
             <div style="margin-left:26px;margin-top:4px;">
@@ -1114,8 +1239,8 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
         <h4>2. User-Initiated Uploads &amp; Zero Data Storage by Sybyl</h4>
         <p>All files, documents, statements, contracts, images, audio recordings, or text prompts that you upload or enter into any of the 61 applications are submitted strictly on your own volition and responsibility. <strong>Sybyl does not store, archive, or maintain permanent records of any documents or business data you upload into the applications.</strong></p>
 
-        <h4>3. Corporate Google Gemini Enterprise Safeguards &amp; Zero Model Training</h4>
-        <p>The agents in this portfolio process inputs through Sybyl's corporate <strong>Google Gemini Enterprise</strong> engine governed by Google Cloud's enterprise data privacy commitments. <strong>Your uploaded documents, prompts, and generated outputs are protected by enterprise safeguards and are never used to train Google's foundation models or shared with third parties.</strong> Sybyl itself does not store, inspect, or retain copies of your uploaded data.</p>
+        <h4>3. Corporate Enterprise AI Safeguards &amp; Zero Model Training</h4>
+        <p>The agents in this portfolio process inputs through Sybyl's corporate <strong>Enterprise AI</strong> engine governed by enterprise cloud data privacy commitments. <strong>Your uploaded documents, prompts, and generated outputs are protected by enterprise safeguards and are never used to train foundation models or shared with third parties.</strong> Sybyl itself does not store, inspect, or retain copies of your uploaded data.</p>
 
         <h4>4. Generative AI Safeguard ("AI Can Make Mistakes") &amp; Human Verification</h4>
         <p><strong>Generative AI can make mistakes, misinterpret documents, or produce incomplete outputs.</strong> While deterministic Python performs calculations and rule validations within these agents, all outputs are provided strictly as decision-support drafts. You must independently review and verify all figures, citations, and recommendations with a qualified human professional before any action, filing, communication, or payment is taken.</p>
@@ -1135,6 +1260,31 @@ LOGIN_PAGE_TEMPLATE = r"""<!DOCTYPE html>
   </div>
 
 <script>
+  (function() {
+    var dots = document.querySelectorAll("[data-set-theme]");
+    function applyTheme(t) {
+      if (["daylight", "sand", "dusk", "midnight"].indexOf(t) === -1) t = "sand";
+      document.documentElement.setAttribute("data-theme", t);
+      if (t === "dusk" || t === "midnight") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+      try { localStorage.setItem("sybyl_portfolio_theme", t); } catch (_) {}
+      dots.forEach(function(btn) {
+        btn.classList.toggle("active", btn.getAttribute("data-set-theme") === t);
+      });
+    }
+    var initial = "sand";
+    try { initial = localStorage.getItem("sybyl_portfolio_theme") || "sand"; } catch (_) {}
+    applyTheme(initial);
+    dots.forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        applyTheme(btn.getAttribute("data-set-theme"));
+      });
+    });
+  })();
+
   const NEXT_URL = __NEXT_URL_JSON__;
   let activeEmail = "";
   let activeTermsAccepted = false;
